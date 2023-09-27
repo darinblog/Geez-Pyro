@@ -47,21 +47,18 @@ async def quotly(client: Client, message: Message):
         if args:
             await client.send_message(bot, f"/qcolor {args}")
             await asyncio.sleep(1)
-        else:
-            pass
         await message.reply_to_message.forward(bot)
         await asyncio.sleep(5)
         async for quotly in client.search_messages(bot, limit=1):
-            if quotly:
-                await message.delete()
-                await message.reply_sticker(
-                    sticker=quotly.sticker.file_id,
-                    reply_to_message_id=message.reply_to_message.id
-                    if message.reply_to_message
-                    else None,
-                )
-            else:
+            if not quotly:
                 return await message.edit("**Failed to Create Quotly Sticker**")
+            await message.delete()
+            await message.reply_sticker(
+                sticker=quotly.sticker.file_id,
+                reply_to_message_id=message.reply_to_message.id
+                if message.reply_to_message
+                else None,
+            )
     await client.delete_messages(bot, 2)
 
 @geez(["txtst", "text"], cmds)
@@ -122,23 +119,21 @@ async def twitt(client: Client, message: Message):
     if not message.reply_to_message:
         return await message.edit("**Please Reply to Message**")
     bot = "TwitterStatusBot"
-    if message.reply_to_message:
-        await message.edit("`Making a post...`")
-        await client.unblock_user(bot)
-        await message.reply_to_message.forward(bot)
-        await asyncio.sleep(5)
-        async for twitt in client.search_messages(bot, limit=1):
-            if twitt:
-                await message.delete()
-                await message.reply_sticker(
-                    sticker=twitt.sticker.file_id,
-                    reply_to_message_id=message.reply_to_message.id
-                    if message.reply_to_message
-                    else None,
-                )
-            else:
-                return await message.edit("**Failed to Create twitter status**")
-                
+    await message.edit("`Making a post...`")
+    await client.unblock_user(bot)
+    await message.reply_to_message.forward(bot)
+    await asyncio.sleep(5)
+    async for twitt in client.search_messages(bot, limit=1):
+        if not twitt:
+            return await message.edit("**Failed to Create twitter status**")
+
+        await message.delete()
+        await message.reply_sticker(
+            sticker=twitt.sticker.file_id,
+            reply_to_message_id=message.reply_to_message.id
+            if message.reply_to_message
+            else None,
+        )
     await client.delete_messages(bot, 2)
 
 LAST_MESSAGE_ID = None

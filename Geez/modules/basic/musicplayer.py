@@ -64,7 +64,7 @@ async def get_chat_(client, chat_):
             return (await client.get_chat(int(chat_))).id
         except ValueError:
             chat_ = chat_.split("-100")[1]
-            chat_ = '-' + str(chat_)
+            chat_ = f'-{str(chat_)}'
             return int(chat_)
         
 async def playout_ended_handler(group_call, filename):
@@ -110,11 +110,7 @@ async def skip_m(client, message):
     uploade_r = next_song["singer"]
     dur = next_song["dur"]
     url = next_song["url"]
-    if os.path.exists(raw_file_name):
-        group_call.input_filename = raw_file_name
-        group_call.song_name = vid_title
-        return await message.edit_text(f"📀 Memutar selanjutnya `{vid_title}` oleh `{uploade_r}`!")
-    else:
+    if not os.path.exists(raw_file_name):
         start = time.time()
         try:
             audio_original = await yt_dl(url, client, message, start)
@@ -126,9 +122,9 @@ async def skip_m(client, message):
             return await message.edit_text(f"`Gagal menconvert audio...` \n**Error :** `{e}`")
         if os.path.exists(audio_original):
             os.remove(audio_original)
-        group_call.input_filename = raw_file_name
-        group_call.song_name = vid_title
-        return await message.edit_text(f"📀 Memutar selanjutnya `{vid_title}` oleh `{uploade_r}`!")
+    group_call.input_filename = raw_file_name
+    group_call.song_name = vid_title
+    return await message.edit_text(f"📀 Memutar selanjutnya `{vid_title}` oleh `{uploade_r}`!")
 
 
 @Client.on_message(filters.command("play", "!") & SUDO_USER)
@@ -136,26 +132,7 @@ async def skip_m(client, message):
 async def play_m(client, message):
     group_call = GPC.get((message.chat.id, client.me.id))
     u_s = await edit_or_reply(message, "`Processing..`")
-    input_str = get_text(message)
-    if not input_str:
-        if not message.reply_to_message:
-            return await u_s.edit_text("`berikan judul lagu atau reply ke audio file`")
-        if not message.reply_to_message.audio:
-            return await u_s.edit("`berikan judul lagu atau reply ke audio file`")
-        await u_s.edit_text("`Processing...`")
-        audio = message.reply_to_message.audio
-        audio_original = await message.reply_to_message.download()
-        vid_title = audio.title or audio.file_name
-        uploade_r = message.reply_to_message.audio.performer or "Unknown Artist."
-        dura_ = message.reply_to_message.audio.duration
-        dur = datetime.timedelta(seconds=dura_)
-        raw_file_name = (
-            ''.join(random.choice(string.ascii_lowercase) for i in range(5))
-            + ".raw"
-        )
-
-        url = message.reply_to_message.link
-    else:
+    if input_str := get_text(message):
         search = SearchVideos(str(input_str), offset=1, mode="dict", max_results=1)
         rt = search.result()
         result_s = rt.get("search_result")
@@ -172,10 +149,28 @@ async def play_m(client, message):
         except BaseException as e:
            return await u_s.edit(f"**Download gagal** \n**Error :** `{str(e)}`")
         raw_file_name = (
-            ''.join(random.choice(string.ascii_lowercase) for i in range(5))
+            ''.join(random.choice(string.ascii_lowercase) for _ in range(5))
             + ".raw"
         )
 
+    else:
+        if not message.reply_to_message:
+            return await u_s.edit_text("`berikan judul lagu atau reply ke audio file`")
+        if not message.reply_to_message.audio:
+            return await u_s.edit("`berikan judul lagu atau reply ke audio file`")
+        await u_s.edit_text("`Processing...`")
+        audio = message.reply_to_message.audio
+        audio_original = await message.reply_to_message.download()
+        vid_title = audio.title or audio.file_name
+        uploade_r = message.reply_to_message.audio.performer or "Unknown Artist."
+        dura_ = message.reply_to_message.audio.duration
+        dur = datetime.timedelta(seconds=dura_)
+        raw_file_name = (
+            ''.join(random.choice(string.ascii_lowercase) for _ in range(5))
+            + ".raw"
+        )
+
+        url = message.reply_to_message.link
     try:
         raw_file_name = await convert_to_raw(audio_original, raw_file_name)
     except BaseException as e:

@@ -12,6 +12,7 @@ kopas repo dan hapus credit, ga akan jadikan lu seorang developer
 YANG NYOLONG REPO INI TRUS DIJUAL JADI PREM, LU GAY...
 ©2023 Geez | Ram Team
 """
+
 import asyncio
 from collections import deque
 from random import randint
@@ -29,7 +30,7 @@ emojis = {
     "earth": list("🌏🌍🌎🌎🌍🌏🌍🌎"),
     "heart": list("❤️🧡💛💚💙💜🖤"),
 }
-emoji_commands = [x for x in emojis]
+emoji_commands = list(emojis)
 
 
 @geez(emoji_commands, cmds)
@@ -50,7 +51,7 @@ special_emojis_dict = {
     "bb": {"emoji": "🏀", "help": "The special basketball emoji"},
     "soccer": {"emoji": "⚽️", "help": "The special football emoji"},
 }
-special_emoji_commands = [x for x in special_emojis_dict]
+special_emoji_commands = list(special_emojis_dict)
 
 
 @geez(special_emoji_commands, cmds)
@@ -69,7 +70,7 @@ special_emoji_help = [
     [f"{cmds}earth `or` {cmds}globe", "Make the world go round."],
 ]
 
-for x in special_emojis_dict:
-    special_emoji_help.append([f"{cmds}{x}", special_emojis_dict[x]["help"]])
-
+special_emoji_help.extend(
+    [f"{cmds}{x}", special_emojis_dict[x]["help"]] for x in special_emojis_dict
+)
 add_command_help("emoji", special_emoji_help)

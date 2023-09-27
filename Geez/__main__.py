@@ -23,7 +23,7 @@ async def main():
     await app.start()
     LOGGER("Geez").info("Loading Everything.")
     for all_module in ALL_MODULES:
-        importlib.import_module("Geez.modules" + all_module)
+        importlib.import_module(f"Geez.modules{all_module}")
     for bot in bots:
         try:
             await bot.start()

@@ -26,12 +26,11 @@ def get_text(message: Message) -> [None, str]:
     text_to_return = message.text
     if message.text is None:
         return None
-    if " " in text_to_return:
-        try:
-            return message.text.split(None, 1)[1]
-        except IndexError:
-            return None
-    else:
+    if " " not in text_to_return:
+        return None
+    try:
+        return message.text.split(None, 1)[1]
+    except IndexError:
         return None
 
 afk_sanity_check: dict = {}
@@ -43,10 +42,7 @@ onlinestr ="""
 """
 async def is_afk_(f, client, message):
     af_k_c = await check_afk()
-    if af_k_c:
-        return bool(True)
-    else:
-        return bool(False)
+    return bool(af_k_c)
     
 is_afk = filters.create(func=is_afk_, name="is_afk_")
 

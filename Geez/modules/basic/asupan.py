@@ -12,6 +12,7 @@ kopas repo dan hapus credit, ga akan jadikan lu seorang developer
 YANG NYOLONG REPO INI TRUS DIJUAL JADI PREM, LU GAY...
 ©2023 Geez | Ram Team
 """
+
 import asyncio
 from asyncio import gather
 from random import choice
@@ -23,7 +24,7 @@ from geezlibs.geez import geez
 from Geez.modules.basic import add_command_help
 from Geez import cmds
 
-caption = f"**UPLOADED BY** Geez | RAM"
+caption = "**UPLOADED BY** Geez | RAM"
 
 @geez("asupan", cmds)
 async def asupan(client: Client, message: Message):
@@ -103,7 +104,7 @@ async def ppcp(client, message):
             ]
         ),
         False,
-        caption=f"📌 PP Couple nya Nih Kak",
+        caption="📌 PP Couple nya Nih Kak",
     )
 
     await yanto.delete()
@@ -123,7 +124,7 @@ async def ppanime(client, message):
             ]
         ),
         False,
-        caption=f"📌 PP Anime nya Nih Kak",
+        caption="📌 PP Anime nya Nih Kak",
     )
 
     await yanto.delete()
