@@ -27,8 +27,7 @@ from Geez.modules.basic import add_command_help
 async def do_deepfry(c: Client, m: Message):
     try:
         frycount = int(m.text.split(None, 1)[1])
-        if frycount < 1:
-            frycount = 1
+        frycount = max(frycount, 1)
     except IndexError:
         frycount = 1
 

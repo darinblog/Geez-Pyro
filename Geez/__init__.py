@@ -117,10 +117,7 @@ CMD_HELP = {}
 scheduler = AsyncIOScheduler()
 StartTime = time.time()
 START_TIME = datetime.now()
-TEMP_SETTINGS: Dict[Any, Any] = {}
-TEMP_SETTINGS["PM_COUNT"] = {}
-TEMP_SETTINGS["PM_LAST_MSG"] = {}
-
+TEMP_SETTINGS: Dict[Any, Any] = {"PM_COUNT": {}, "PM_LAST_MSG": {}}
 app = Client(
     name="app",
     api_id=API_ID,

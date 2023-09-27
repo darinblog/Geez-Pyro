@@ -49,9 +49,7 @@ async def extract_userid(message, text: str):
     entity = entities[1]
     if entity.type == "mention":
         return (await app.get_users(text)).id
-    if entity.type == "text_mention":
-        return entity.user.id
-    return None
+    return entity.user.id if entity.type == "text_mention" else None
 
 
 async def extract_user_and_reason(message, sender_chat=False):
@@ -61,22 +59,18 @@ async def extract_user_and_reason(message, sender_chat=False):
     reason = None
     if message.reply_to_message:
         reply = message.reply_to_message
-        if not reply.from_user:
-            if (
+        if reply.from_user:
+            id_ = reply.from_user.id
+
+        elif (
                 reply.sender_chat
                 and reply.sender_chat != message.chat.id
                 and sender_chat
             ):
-                id_ = reply.sender_chat.id
-            else:
-                return None, None
+            id_ = reply.sender_chat.id
         else:
-            id_ = reply.from_user.id
-
-        if len(args) < 2:
-            reason = None
-        else:
-            reason = text.split(None, 1)[1]
+            return None, None
+        reason = None if len(args) < 2 else text.split(None, 1)[1]
         return id_, reason
 
     if len(args) == 2:
@@ -127,37 +121,29 @@ async def block_user_func(client: Client, message: Message):
 @geez("setname", cmds)
 async def setname(client: Client, message: Message):
     tex = await message.reply_text("`Processing . . .`")
-    if len(message.command) == 1:
+    if len(message.command) == 1 or len(message.command) <= 1:
         return await tex.edit(
             "berikan text untuk diatur sebagai nama anda."
         )
-    elif len(message.command) > 1:
-        name = message.text.split(None, 1)[1]
-        try:
-            await client.update_profile(first_name=name)
-            await tex.edit(f"**berhasil mengganti nama menjadi** `{name}`")
-        except Exception as e:
-            await tex.edit(f"**ERROR:** `{e}`")
-    else:
-        return await tex.edit(
-            "berikan text untuk diatur sebagai nama anda."
-        )
+    name = message.text.split(None, 1)[1]
+    try:
+        await client.update_profile(first_name=name)
+        await tex.edit(f"**berhasil mengganti nama menjadi** `{name}`")
+    except Exception as e:
+        await tex.edit(f"**ERROR:** `{e}`")
 
 
 @geez("setbio", cmds)
 async def set_bio(client: Client, message: Message):
     tex = await message.edit_text("`Processing . . .`")
-    if len(message.command) == 1:
+    if len(message.command) == 1 or len(message.command) <= 1:
         return await tex.edit("berikan text untuk diatur sebagai bio.")
-    elif len(message.command) > 1:
-        bio = message.text.split(None, 1)[1]
-        try:
-            await client.update_profile(bio=bio)
-            await tex.edit(f"**berhasil mengganti bio menjadi** `{bio}`")
-        except Exception as e:
-            await tex.edit(f"**ERROR:** `{e}`")
-    else:
-        return await tex.edit("berikan text untuk diatur sebagai bio.")
+    bio = message.text.split(None, 1)[1]
+    try:
+        await client.update_profile(bio=bio)
+        await tex.edit(f"**berhasil mengganti bio menjadi** `{bio}`")
+    except Exception as e:
+        await tex.edit(f"**ERROR:** `{e}`")
 
 
 @geez("setpp", cmds)
@@ -187,10 +173,7 @@ async def set_pfp(client: Client, message: Message):
 @geez("setppv", cmds)
 async def view_pfp(client: Client, message: Message):
     user_id = await extract_user(message)
-    if user_id:
-        user = await client.get_users(user_id)
-    else:
-        user = await client.get_me()
+    user = await client.get_users(user_id) if user_id else await client.get_me()
     if not user.photo:
         await message.reply_text("Foto profil tidak ditemukan!")
         return

@@ -72,27 +72,27 @@ async def module_help(client: Client, message: Message):
 @Client.on_message(filters.command("alive", "!") & SUDO_USER)
 @geez("alive", cmds)
 async def alive(client: Client, message: Message):
-    xx = await message.reply_text("⚡️")
-    await logging(client)
-    await asyncio.sleep(3)
-    try:
-        await message.delete()
-    except:
-        pass
-    send = client.send_video if alive_logo.endswith(f".mp4") else client.send_photo
-    xd = (f"{txt}")
-    try:
-        await asyncio.gather(
-            xx.delete(),
-            send(
-                message.chat.id,
-                alive_logo,
-                caption=xd,
-                reply_to_message_id=ReplyCheck(message),
-            ),
-        )
-    except BaseException:
-        await xx.edit(xd, disable_web_page_preview=True)
+   xx = await message.reply_text("⚡️")
+   await logging(client)
+   await asyncio.sleep(3)
+   try:
+       await message.delete()
+   except:
+       pass
+   send = client.send_video if alive_logo.endswith(".mp4") else client.send_photo
+   xd = (f"{txt}")
+   try:
+       await asyncio.gather(
+           xx.delete(),
+           send(
+               message.chat.id,
+               alive_logo,
+               caption=xd,
+               reply_to_message_id=ReplyCheck(message),
+           ),
+       )
+   except BaseException:
+       await xx.edit(xd, disable_web_page_preview=True)
 
 @geez("repo", cmds)
 async def repo(bot: Client, message: Message):

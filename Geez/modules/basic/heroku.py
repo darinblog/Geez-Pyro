@@ -49,17 +49,16 @@ XCB = [
 
 @geez("logs", cmds)
 async def log_(client, message):
-    if await is_heroku():
-        if HEROKU_API_KEY == "" and HEROKU_APP_NAME == "":
-            return await message.reply_text(
-                "<b>Menggunakan App Heroku!</b>\n\nMasukan/atur  `HEROKU_API_KEY` dan `HEROKU_APP_NAME` untuk bisa melakukan update!"
-            )
-        elif HEROKU_API_KEY == "" or HEROKU_APP_NAME == "":
-            return await message.reply_text(
-                "<b>Menggunakan App Heroku!</b>\n\n<b>pastikan</b> `HEROKU_API_KEY` **dan** `HEROKU_APP_NAME` <b>sudah di configurasi dengan benar!</b>"
-            )
-    else:
+    if not await is_heroku():
         return await message.reply_text("hanya untuk Heroku Deployment")
+    if HEROKU_API_KEY == "" and HEROKU_APP_NAME == "":
+        return await message.reply_text(
+            "<b>Menggunakan App Heroku!</b>\n\nMasukan/atur  `HEROKU_API_KEY` dan `HEROKU_APP_NAME` untuk bisa melakukan update!"
+        )
+    elif HEROKU_API_KEY == "" or HEROKU_APP_NAME == "":
+        return await message.reply_text(
+            "<b>Menggunakan App Heroku!</b>\n\n<b>pastikan</b> `HEROKU_API_KEY` **dan** `HEROKU_APP_NAME` <b>sudah di configurasi dengan benar!</b>"
+        )
     try:
         Heroku = heroku3.from_key(HEROKU_API_KEY)
         happ = Heroku.app(HEROKU_APP_NAME)
@@ -68,14 +67,13 @@ async def log_(client, message):
             " Pastikan Heroku API Key, App name sudah benar"
         )
     data = happ.get_log()
-    if len(data) > 1024:
-        link = await paste_queue(data)
-        url = link + "/index.txt"
-        return await message.reply_text(
-            f"Logs [{HEROKU_APP_NAME}]\n\n[Klik untuk melihat({url})"
-        )
-    else:
+    if len(data) <= 1024:
         return await message.reply_text(data)
+    link = await paste_queue(data)
+    url = f"{link}/index.txt"
+    return await message.reply_text(
+        f"Logs [{HEROKU_APP_NAME}]\n\n[Klik untuk melihat({url})"
+    )
 
 
 @geez("getvar", cmds)
@@ -107,17 +105,16 @@ async def varget_(client, message):
             )
         else:
             return await message.reply_text("Var tidak ditemukan")
-    else:
-        path = dotenv.find_dotenv()
-        if not path:
-            return await message.reply_text(".env tidak ditemukan.")
-        output = dotenv.get_key(path, check_var)
-        if not output:
-            return await message.reply_text("var tidak ditemukan")
-        else:
-            return await message.reply_text(
+    elif path := dotenv.find_dotenv():
+        return (
+            await message.reply_text(
                 f".env:\n\n**{check_var}:** `{str(output)}`"
             )
+            if (output := dotenv.get_key(path, check_var))
+            else await message.reply_text("var tidak ditemukan")
+        )
+    else:
+        return await message.reply_text(".env tidak ditemukan.")
 
 
 @geez("delvar", cmds)
@@ -143,13 +140,12 @@ async def vardel_(client, message):
                 " Pastikan Heroku API Key, App name sudah benar"
             )
         heroku_config = happ.config()
-        if check_var in heroku_config:
-            await message.reply_text(
-                f"**Heroku Var:**\n\n`{check_var}` Sukses dihapus."
-            )
-            del heroku_config[check_var]
-        else:
-            return await message.reply_text(f"Var tidak ditemukan")
+        if check_var not in heroku_config:
+            return await message.reply_text("Var tidak ditemukan")
+        await message.reply_text(
+            f"**Heroku Var:**\n\n`{check_var}` Sukses dihapus."
+        )
+        del heroku_config[check_var]
     else:
         path = dotenv.find_dotenv()
         if not path:
@@ -213,17 +209,16 @@ async def setvar(client, message):
 
 @geez("usage", cmds)
 async def usage_dynos(client, message):
-    if await is_heroku():
-        if HEROKU_API_KEY == "" and HEROKU_APP_NAME == "":
-            return await message.reply_text(
-                "<b>Menggunakan App Heroku!</b>\n\nMasukan/atur  `HEROKU_API_KEY` dan `HEROKU_APP_NAME` untuk bisa melakukan update!"
-            )
-        elif HEROKU_API_KEY == "" or HEROKU_APP_NAME == "":
-            return await message.reply_text(
-                "<b>Menggunakan App Heroku!</b>\n\n<b>pastikan</b> `HEROKU_API_KEY` **dan** `HEROKU_APP_NAME` <b>sudah di configurasi dengan benar!</b>"
-            )
-    else:
-            return await message.reply_text("Hanya untuk Heroku Deployment")
+    if not await is_heroku():
+        return await message.reply_text("Hanya untuk Heroku Deployment")
+    if HEROKU_API_KEY == "" and HEROKU_APP_NAME == "":
+        return await message.reply_text(
+            "<b>Menggunakan App Heroku!</b>\n\nMasukan/atur  `HEROKU_API_KEY` dan `HEROKU_APP_NAME` untuk bisa melakukan update!"
+        )
+    elif HEROKU_API_KEY == "" or HEROKU_APP_NAME == "":
+        return await message.reply_text(
+            "<b>Menggunakan App Heroku!</b>\n\n<b>pastikan</b> `HEROKU_API_KEY` **dan** `HEROKU_APP_NAME` <b>sudah di configurasi dengan benar!</b>"
+        )
     try:
         Heroku = heroku3.from_key(HEROKU_API_KEY)
         happ = Heroku.app(HEROKU_APP_NAME)
@@ -243,8 +238,8 @@ async def usage_dynos(client, message):
         "Authorization": f"Bearer {HEROKU_API_KEY}",
         "Accept": "application/vnd.heroku+json; version=3.account-quotas",
     }
-    path = "/accounts/" + account_id + "/actions/get-quota"
-    r = requests.get("https://api.heroku.com" + path, headers=headers)
+    path = f"/accounts/{account_id}/actions/get-quota"
+    r = requests.get(f"https://api.heroku.com{path}", headers=headers)
     if r.status_code != 200:
         return await dyno.edit("Unable to fetch.")
     result = r.json()
@@ -277,10 +272,9 @@ Dyno tersisa:
     return await dyno.edit(text)
 
 async def geez_log():
-    botlog_chat_id = os.environ.get('BOTLOG_CHATID')
-    if botlog_chat_id:
+    if botlog_chat_id := os.environ.get('BOTLOG_CHATID'):
         return
-   
+
     group_name = 'GeezPyro Bot Log'
     group_description = 'This group is used to log my bot activities'
     group = await bot1.create_supergroup(group_name, group_description)

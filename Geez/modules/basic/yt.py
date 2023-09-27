@@ -33,12 +33,11 @@ def get_text(message: Message) -> [None, str]:
     text_to_return = message.text
     if message.text is None:
         return None
-    if " " in text_to_return:
-        try:
-            return message.text.split(None, 1)[1]
-        except IndexError:
-            return None
-    else:
+    if " " not in text_to_return:
+        return None
+    try:
+        return message.text.split(None, 1)[1]
+    except IndexError:
         return None
 
 
@@ -64,7 +63,7 @@ async def yt_video(client, message):
             "geo_bypass": True,
         }
     )
-    await infomsg.edit(f"<b>Downloading...</b>")
+    await infomsg.edit("<b>Downloading...</b>")
     try:
         ytdl_data = await run_sync(ydl.extract_info, link, download=True)
         file_path = ydl.prepare_filename(ytdl_data)
@@ -85,13 +84,7 @@ async def yt_video(client, message):
         file_name=title,
         duration=duration,
         supports_streaming=True,
-        caption="<b>Informasi :</b>\n\n<b>Nama:</b> {}\n<b>Durasi:</b> {}\n<b>Dilihat:</b> {}\n<b>Channel:</b> {}\n<b>Tautan:</b> <a href={}>Youtube</a>\n\n<b>Powered By Geez|Ram".format(
-            title,
-            duration,
-            views,
-            channel,
-            url,
-        ),
+        caption=f"<b>Informasi :</b>\n\n<b>Nama:</b> {title}\n<b>Durasi:</b> {duration}\n<b>Dilihat:</b> {views}\n<b>Channel:</b> {channel}\n<b>Tautan:</b> <a href={url}>Youtube</a>\n\n<b>Powered By Geez|Ram",
         reply_to_message_id=message.id,
     )
     await infomsg.delete()
@@ -122,7 +115,7 @@ async def yt_audio(client, message):
             "geo_bypass": True,
         }
     )
-    await infomsg.edit(f"<b>Downloading...</b>")
+    await infomsg.edit("<b>Downloading...</b>")
     try:
         ytdl_data = await run_sync(ydl.extract_info, link, download=True)
         file_path = ydl.prepare_filename(ytdl_data)
@@ -142,13 +135,7 @@ async def yt_audio(client, message):
         thumb=thumbnail,
         file_name=title,
         duration=duration,
-        caption="<b>Informasi :</b>\n\n<b>Nama:</b> {}\n<b>Durasi:</b> {}\n<b>Dilihat:</b> {}\n<b>Channel:</b> {}\n<b>Tautan:</b> <a href={}>Youtube</a>\n\n<b>Powered By Geez|Ram".format(
-            title,
-            duration,
-            views,
-            channel,
-            url,
-        ),
+        caption=f"<b>Informasi :</b>\n\n<b>Nama:</b> {title}\n<b>Durasi:</b> {duration}\n<b>Dilihat:</b> {views}\n<b>Channel:</b> {channel}\n<b>Tautan:</b> <a href={url}>Youtube</a>\n\n<b>Powered By Geez|Ram",
         reply_to_message_id=message.id,
     )
     await infomsg.delete()

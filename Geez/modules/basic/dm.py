@@ -28,7 +28,7 @@ async def dm(coli: Client, memek: Message):
     inp = memek.text.split(None, 2)[1]
     user = await coli.get_chat(inp)
     spam_text = ' '.join(memek.command[2:])
-    quantity = int(quantity)
+    quantity = quantity
 
     if memek.reply_to_message:
         reply_to_id = memek.reply_to_message.message_id

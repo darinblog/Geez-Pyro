@@ -83,11 +83,10 @@ async def ungban_user(client: Client, message: Message):
         ex = await message.edit("`UnGbanning....`")
     if not user_id:
         return await ex.edit("pengguna tidak ditemukan.")
-    if user_id:
-        try:
-            user = await client.get_users(user_id)
-        except Exception:
-            return await ex.edit("`berikan pengguna dengan benar!`")
+    try:
+        user = await client.get_users(user_id)
+    except Exception:
+        return await ex.edit("`berikan pengguna dengan benar!`")
 
     try:
         if not (await Geez.gban_info(user.id)):

@@ -24,8 +24,7 @@ from Geez import cmds
 async def convert_image(client: Client, message: Message):
     if not message.reply_to_message:
         return await message.edit("**Mohon Balas Pesan Ini Ke Media**")
-    if message.reply_to_message:
-        await message.edit("`processing ...`")
+    await message.edit("`processing ...`")
     reply_message = message.reply_to_message
     photo = reply_message.photo.file_id
     bot = "qq_neural_anime_bot"

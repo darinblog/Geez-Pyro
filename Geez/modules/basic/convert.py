@@ -33,7 +33,7 @@ from Geez.modules.basic import add_command_help
 async def extract_aud(client: Client, message: Message):
     replied_msg = message.reply_to_message
     pcs_msg = await message.reply("`Mendownload Media ...`")
-    ext_out_path = os.getcwd() + "downloads/"
+    ext_out_path = f"{os.getcwd()}downloads/"
     if not replied_msg:
         await pcs_msg.edit("**Mohon Balas Ke Video**")
         return
@@ -78,9 +78,8 @@ async def rmbg_background(client: Client, message: Message):
     endpoint = "https://api.remove.bg/v1.0/removebg"
     payload = {"size": "auto"}
 
-    if api_key:
-        with open(temp_file, "rb") as image_file:
-            response = requests.post(endpoint, data=payload, headers={"X-Api-Key": api_key}, files={"image_file": image_file}, stream=True)
+    with open(temp_file, "rb") as image_file:
+        response = requests.post(endpoint, data=payload, headers={"X-Api-Key": api_key}, files={"image_file": image_file}, stream=True)
 
     with open("output.png", "wb") as out_file:
         shutil.copyfileobj(response.raw, out_file)
